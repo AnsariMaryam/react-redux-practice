@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title> Text Editor </title>
+    <link rel="stylesheet" href="css/main.css">
+    <script type="text/javascript" src="js/react.min.js"></script>
+    <script type="text/javascript" src="js/react-dom.min.js"></script>
+    <script type="text/javascript" src="js/browser.min.js"></script>
+  </head>
+  <body>
+    <div id="container"></div>
+
+    <script type="text/babel">
+
+      var Editor = React.createClass({
+        getInitialState: function() {
+          return ({editing: false});
+        },
+        edit: function() {
+          this.setState({editing: true});
+        },
+        save: function() {
+          this.props.UpdateEditorText(this.refs.newtext.value, this.props.index);
+          this.setState({editing: false});
+        },
+        remove: function(){
+          this.props.RemoveFromPanel(this.props.index);
+        },
+        renderNormal: function(){
+          return(
+            <div className="commentContainer">
+              <div className="CommentText">{this.props.children}</div>
+              <button onClick={this.edit} className="button-primary">Edit</button>
+              <button onClick={this.remove} className="button-danger">Remove</button>
+            </div>
+          );
+        },
+        renderForm: function(){
+          return(
+            <div className="commentContainer">
+              <textarea ref="newtext" defaultValue={this.props.children}></textarea>
+              <button onClick={this.save} className="button-success">Save</button>
+            </div>
+          );
+        },
+        render: function() {
+          return (this.state.editing ? this.renderForm() : this.renderNormal());
+        }
+      }); //Editor
+
+      var Panel = React.createClass({
+        getInitialState: function() {
+          return{Editors: []}
+        },
+        addEditor: function(text){
+            var arr = this.state.Editors;
+            arr.push(text);
+            this.setState({Editors: arr});
+        },
+        removeEditor: function(i) {
+          var arr = this.state.Editors;
+          arr.splice(i, 1);
+          this.setState({Editors: arr});
+        },
+        updateEditor: function(newtext, i) {
+          var arr = this.state.Editors;
+          arr[i] = newtext;
+          this.setState({Editors: arr});
+        },
+        eachEditor: function(text, i) {
+          return(<Editor key={i} index= {i} UpdateEditorText={this.updateEditor}
+            RemoveFromPanel={this.removeEditor}> {text} </Editor>);
+        },
+        render: function() {
+          return(
+              <div>
+                <button className="button-info" onClick={this.addEditor.bind(null,'Hello You!')}>Add Editor</button>
+                <div className="board">
+                {
+                   this.state.Editors.map(this.eachEditor)
+                 }
+                </div>
+              </div>
+            );
+        }
+      });//Panel
+
+
+     ReactDOM.render(
+      <Panel />
+       ,document.getElementById('container'));
+    </script>
+
+  </body>
+</html>
